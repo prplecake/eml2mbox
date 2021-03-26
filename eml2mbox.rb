@@ -32,9 +32,7 @@
 # script; if not, please visit http://www.gnu.org/copyleft/gpl.html for more information.    #
 #============================================================================================#
 
-require "parsedate"
-
-include ParseDate
+require "date"
 
 #=======================================================#
 # Class that encapsulates the processing file in memory #
@@ -78,7 +76,7 @@ class FileInMemory
             if line =~ /^Date:\s/ and @date==nil
                 # Parse content of the Date header and convert to the mbox standard for the From_ line
                 @date = line.sub(/Date:\s/,'')
-                year, month, day, hour, minute, second, timezone, wday = parsedate(@date)
+                year, month, day, hour, minute, second, timezone, wday = DateTime._parse(@date, false).values_at(:year, :mon, :mday, :hour, :min, :sec, :zone, :wday)
                 # Need to convert the timezone from a string to a 4 digit offset
                 unless timezone =~ /[+|-]\d*/
                     timezone=ZoneOffset[timezone]
@@ -253,7 +251,7 @@ end
         files.each() do |x|
             puts "Processing file: "+x
             thisFile = FileInMemory.new()
-            File.open(x).each  {|item| thisFile.addLine(item) }
+            File.open(x, "rb").each  {|item| thisFile.addLine(item) }
             lines = thisFile.getProcessedLines
             if lines == nil
                 puts "WARN: File ["+x+"] doesn't seem to have a regular From: line. Not included in mbox"
