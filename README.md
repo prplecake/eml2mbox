@@ -20,14 +20,4 @@ Usage: [ruby] eml2mbx.rb [-c] [-l] [-s] [-yz] [emlpath [trgtmbx]]
 
 ## Resources
 
-Additional documentation can be found [on the wiki][man].
-
-Discussion and paches are welcome and should be directed to my public
-inbox: [~mjorgensen@lists.sr.ht][lists]. Please use `--subject-prefix
-PATCH eml2mbox` for clarity when sending patches.
-
-Bugs and issues are tracked in the tracker: [~mjorgensen/eml2mbox][todo].
-
-[man]:https://man.sr.ht/~mjorgensen/eml2mbox
-[lists]:https://lists.sr.ht/~mjorgensen/public-inbox
-[todo]:https://todo.sr.ht/~mjorgensen/eml2mbox
+Additional documentation can be found [on the wiki](https://github.com/prplecake/eml2mbox/wiki).
