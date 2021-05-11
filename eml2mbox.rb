@@ -57,7 +57,7 @@ class FileInMemory
         @date = nil           # date part of the From_ line
     end
 
-    def addLine(line)
+    def add_line(line)
         # If the line is a 'false' From line, add a '>' to its beggining
         line = line.sub(/From/, '>From') if line =~ /^From/ and @from!=nil
 
@@ -65,7 +65,7 @@ class FileInMemory
         if line =~ /^From:\s.*@/ and @from==nil
             @from = line.sub(/From:/,'From')
             @from = @from.chop    # Remove line break(s)
-            @from = standardizeFrom(@from) unless $switches["noStandardFromLine"]
+            @from = standardize_from(@from) unless $switches["noStandardFromLine"]
         end
 
         # Get the date
@@ -82,28 +82,28 @@ class FileInMemory
                     timezone=ZoneOffset[timezone]
                 end
                 time = Time.gm(year,month,day,hour,minute,second)
-                @date = formMboxDate(time,timezone)
+                @date = form_mbox_date(time,timezone)
             end
         end
 
         # Now add the line to the array
-        line = fixLineEndings(line)
+        line = fix_line_endings(line)
         @lines[@counter]=line
         @counter+=1
     end
 
     # Forms the first line (from + date) and returns all the lines
     # Returns all the lines in the file
-    def getProcessedLines()
+    def get_processed_lines()
         if @from != nil
             # Add from and date to the first line
             if @date==nil
                 puts "WARN: Failed to extract date. Will use current time in the From_ line"
-                @date=formMboxDate(Time.now,nil)
+                @date=form_mbox_date(Time.now,nil)
             end
             @lines[0] = @from + " " + @date 
             
-            @lines[0] = fixLineEndings(@lines[0])
+            @lines[0] = fix_line_endings(@lines[0])
             @lines[@counter] = ""
             return @lines
         end
@@ -111,23 +111,23 @@ class FileInMemory
     end
 
     # Fixes CR/LFs
-    def fixLineEndings(line)
-        line = removeCR(line) if $switches["removeCRs"];
-        line = removeLF(line) if $switches["removeLFs"];
+    def fix_line_endings(line)
+        line = remove_cr(line) if $switches["removeCRs"];
+        line = remove_lf(line) if $switches["removeLFs"];
         return line
     end
 
     # emls usually have CR+LF (DOS) line endings, Unix uses LF as a line break,
     # so there's a hanging CR at the end of the line when viewed on Unix.
     # This method will remove the next to the last character from a line
-    def removeCR(line)
+    def remove_cr(line)
         line = line[0..-3]+line[-1..-1] if line[-2]==0xD
         return line
     end
 
     # Similar to the above. This one is for Macs that use CR as a line break.
     # So, remove the last char
-    def removeLF(line)
+    def remove_lf(line)
         line = line[0..-2] if line[-1]==0xA
         return line
     end
@@ -139,22 +139,22 @@ end
 #================#
 
 # Converts: 'From "some one <aa@aa.aa>" <aa@aa.aa>' -> 'From aa@aa.aa'
-def standardizeFrom(fromLine)
+def standardize_from(from_line)
     # Get indexes of last "<" and ">" in line
-    openIndex = fromLine.rindex('<')
-    closeIndex = fromLine.rindex('>')
-    if openIndex!=nil and closeIndex!=nil
-        fromLine = fromLine[0..4]+fromLine[openIndex+1..closeIndex-1]
+    open_index = from_line.rindex('<')
+    close_index = from_line.rindex('>')
+    if open_index!=nil and close_index!=nil
+        from_line = from_line[0..4]+from_line[open_index+1..close_index-1]
     end
     # else leave as it is - it is either already well formed or is invalid
-    return fromLine
+    return from_line
 end
 
 # Returns a mbox postmark formatted date.
 # If timezone is unknown, it is skipped.
 # mbox date format used is described here:
 # http://www.broobles.com/eml2mbox/mbox.html
-def formMboxDate(time,timezone)
+def form_mbox_date(time,timezone)
     if timezone==nil
         return time.strftime("%a %b %d %H:%M:%S %Y")
     else
@@ -170,7 +170,7 @@ end
 # Extracts all switches from the command line and returns
 # a hashmap with valid switch names as keys and booleans as values
 # Moves real params to the beggining of the ARGV array
-def extractSwitches()
+def extract_switches()
     switches = Hash.new(false)  # All switches (values) default to false
     i=0
     while (ARGV[i]=~ /^-/)  # while arguments are switches
@@ -201,7 +201,7 @@ end
 #     Main      #
 #===============#
 
-    $switches = extractSwitches()
+    $switches = extract_switches()
 
     # Extract specified directory with emls and the target archive (if any)
     emlDir = "."     # default if not specified
@@ -251,8 +251,8 @@ end
         files.each() do |x|
             puts "Processing file: "+x
             thisFile = FileInMemory.new()
-            File.open(x, "rb").each  {|item| thisFile.addLine(item) }
-            lines = thisFile.getProcessedLines
+            File.open(x, "rb").each  {|item| thisFile.add_line(item) }
+            lines = thisFile.get_processed_lines
             if lines == nil
                 puts "WARN: File ["+x+"] doesn't seem to have a regular From: line. Not included in mbox"
             else
